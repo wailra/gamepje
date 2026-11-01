@@ -13,5 +13,5 @@ main = playIO (InWindow "Counter" (400, 400) (0, 0)) -- Or FullScreen
               10               -- Frames per second
               initialState     -- Initial state
               view             -- View function
-              (\e w -> return w)   -- Event function
+              input            -- Event function
               step             -- Step function

@@ -11,18 +11,24 @@ import Ship
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs gstate = return gstate
- where
-  s = ship gstate
+step secs gstate = return gstate {
+ship = shipstep (ship gstate)
+}
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState
-input (KeyUp Up) gstate = gstate {ship = s {upkey = False} }
-input (KeyUp Down) gstate = gstate {ship = s {upkey = True} }
-input (KeyLeft Up) gstate = gstate {ship = s {leftkey = False}}
-input (KeyLeft Down) gstate = gstate {ship = s {leftkey = True}} 
-input (KeyRight Up) gstate = gstate {ship = s {rightkey = False}}
-input (KeyRight Down) gstate = gstate {ship = s {rightkey = True}}
- where
-  s = ship gstate
+input (EventKey (SpecialKey KeyUp) Down _ _) gstate =
+    return gstate {ship = (ship gstate) {upkey = True}}
+input (EventKey (SpecialKey KeyUp) Up _ _) gstate =
+    return gstate {ship = (ship gstate) {upkey = False}}
+input (EventKey (SpecialKey KeyLeft) Down _ _) gstate =
+    return gstate {ship = (ship gstate) {leftkey = True}}
+input (EventKey (SpecialKey KeyLeft) Up _ _) gstate =
+    return gstate {ship = (ship gstate) {leftkey = False}}
+input (EventKey (SpecialKey KeyRight) Down _ _) gstate =
+   return gstate {ship = (ship gstate) {rightkey = True}}
+input (EventKey (SpecialKey KeyRight) Up _ _) gstate =
+     return gstate {ship = (ship gstate) {rightkey = False}}
+input _ gstate = return gstate
+
 

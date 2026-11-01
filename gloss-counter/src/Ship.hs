@@ -24,19 +24,38 @@ shiplength = 100.0
 dragship :: Ship -> Ship
 dragship s = s {velocity = ((fst (velocity s)) * drag, (snd (velocity s)) * drag)}
  where
-  drag = 0.99
+  drag = 0.9
+
+boostship :: Ship -> Ship
+boostship s | up = s {velocity = ((-sin dir) * 2 + (fst vel) , (-cos dir) * 2 + (snd vel) )}
+            | otherwise = s
+            where
+  up = upkey s
+  dir = degreesToRadians (direction s)
+  vel = velocity s 
+
+turnship :: Ship -> Ship 
+turnship s | leftkey s = s {direction = (direction s) - 5}
+           | rightkey s = s {direction = (direction s) + 5}
+           | otherwise = s 
+
+shipstep :: Ship -> Ship
+shipstep =  moveship . dragship . boostship . turnship
+
+boundingboxship :: Ship -> Ship
+boundingboxship = (shiptopoints s)
 
 shiptopoints :: Ship -> [(Float,Float)]
-shiptopoints s = 
+shiptopoints s =
   map (translation (location s) (degreesToRadians (direction s))) basicpoints
   where
-   basicpoints =
-    [ (shipwidth / 2,  shiplength / 2)
-      , ( shipwidth / 2,  shiplength / 2)
-      , ( 0,             -shiplength / 2)
-    ]
+    basicpoints =
+      [ (-shipwidth / 2, shiplength / 2)
+      , ( shipwidth / 2, shiplength / 2)
+      , ( 0, -shiplength / 2)
+      ]
 
 spawnship :: Ship
-spawnship = Ship (50.0 , 50.0) 0 (0,0) False False False-- degrees, 0 = pointing upwards 0 = velocity
+spawnship = Ship (0.0 , 0.0) 0 (0,0) False False False-- degrees, 0 = pointing upwards 0 = velocity
 
 

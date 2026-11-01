@@ -14,4 +14,4 @@ data GameState = GameState {
 
 
 initialState :: GameState
-initialState = GameState 0 Down faseFalse spawnship
+initialState = GameState 0 spawnship
