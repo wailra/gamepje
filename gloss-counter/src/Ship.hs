@@ -40,10 +40,14 @@ turnship s | leftkey s = s {direction = (direction s) - 5}
            | otherwise = s 
 
 shipstep :: Ship -> Ship
-shipstep =  moveship . dragship . boostship . turnship
+shipstep =  moveship . dragship . boostship . turnship . boundingboxship
 
 boundingboxship :: Ship -> Ship
-boundingboxship = (shiptopoints s)
+boundingboxship s | all (>= 870) (map fst (shiptopoints s)) = s {location = ((fst (location s) ) - 1920, snd (location s))}
+boundingboxship s | all (<= -870) (map fst (shiptopoints s)) = s {location = ((fst (location s)) + 1920, snd (location s))}
+boundingboxship s | all (>= 540) (map snd (shiptopoints s)) = s {location = ((fst (location s)) - 1080, snd (location s))}
+boundingboxship s | all (<= -540) (map snd (shiptopoints s)) = s {location = ((fst (location s)) + 1080, snd (location s))}
+                  | otherwise = s
 
 shiptopoints :: Ship -> [(Float,Float)]
 shiptopoints s =

@@ -8,7 +8,7 @@ import Ship
 import Graphics.Gloss.Interface.IO.Game
 
 main :: IO ()
-main = playIO (InWindow "Counter" (400, 400) (0, 0)) -- Or FullScreen
+main = playIO (InWindow "Counter" (1920, 1080) (0, 0)) -- Or FullScreen
               white            -- Background color
               10               -- Frames per second
               initialState     -- Initial state
