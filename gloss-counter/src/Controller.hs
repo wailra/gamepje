@@ -11,22 +11,18 @@ import Ship
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs gstate {}
-
+step secs gstate = return gstate
+ where
+  s = ship gstate
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState
-input KeyUp key gstate = gstate {keyup = key} 
-input KeyLeft key gstate = gstate {keyup = key} 
-input KeyRight key gstate = gstate {keyup = key} 
+input (KeyUp Up) gstate = gstate {ship = s {upkey = False} }
+input (KeyUp Down) gstate = gstate {ship = s {upkey = True} }
+input (KeyLeft Up) gstate = gstate {ship = s {leftkey = False}}
+input (KeyLeft Down) gstate = gstate {ship = s {leftkey = True}} 
+input (KeyRight Up) gstate = gstate {ship = s {rightkey = False}}
+input (KeyRight Down) gstate = gstate {ship = s {rightkey = True}}
+ where
+  s = ship gstate
 
-
-
-inputKey :: Event -> GameState -> GameState
-inputKey (EventKey ("f") _ _ _) gstate
-  = -- If the user presses a character key, show that one
-    gstate { infoToShow = ShowAChar c }
-    inputKey (EventKey (Char a) _ _ _) gstate
-  = -- If the user presses a character key, show that one
-    gstate { infoToShow = ShowAChar c }
-inputKey _ gstate = gstate -- Otherwise keep the same`

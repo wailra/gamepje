@@ -1,9 +1,10 @@
+module Math where
 
+translation :: (Float, Float) -> Float -> (Float, Float) -> (Float, Float)
+translation (xo, yo) rotation (x, y) = (xn + xo, yn + yo)
+  where
+    xn = x * cos rotation + y * sin rotation
+    yn = -x * sin rotation + y * cos rotation
 
-translation :: (Float,Float) -> (Float,Float) -> Float -> (Float, Float)
-translation (x,y) (xo,yo) rotation = (xn + ox, yn + yo)
-where 
-    xn = x' * cos(rotation) - y'sin(rotation)
-    yn = x' * sin(rotation) + y'cos(rotation)
-    x' = x - xo
-    y' = y - yo
+degreesToRadians :: Float -> Float
+degreesToRadians degrees = degrees * pi / 180
