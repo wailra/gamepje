@@ -10,6 +10,6 @@ view :: GameState -> IO Picture
 view = return . viewPure
 
 viewPure :: GameState -> Picture
-viewPure gstate  = polygon (shiptopoints s)
+viewPure gstate  = polygon (shiptopoints s) ++ 
   where
     s = ship gstate
