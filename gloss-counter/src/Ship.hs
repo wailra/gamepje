@@ -2,18 +2,23 @@
 module Ship where
 
 import Math
+import Body
+import Bullet
 
 data Ship = Ship
-  { location :: (Float,Float)
-  , direction  :: Float
-  , velocity :: (Float, Float)
+  { sbody :: Body
   , upkey :: Bool
   , leftkey :: Bool
   , rightkey :: Bool
+  , spacebar :: Bool
+  , bullets :: [Bullet]
   }
 
-moveship :: Ship -> Ship
-moveship s = s { location = ((fst (location s)) + (fst (velocity s)) ,(snd (location s)) + (snd (velocity s)))}
+shipBody :: Body
+shipBody = (Body (0,0) (0,0) 0 20)
+
+spawnShip :: Ship
+spawnShip = Ship shipBody False False False False []
 
 shipwidth :: Float
 shipwidth = 50.0
@@ -22,44 +27,53 @@ shiplength :: Float
 shiplength = 100.0
 
 dragship :: Ship -> Ship
-dragship s = s {velocity = ((fst (velocity s)) * drag, (snd (velocity s)) * drag)}
+dragship s = s {sbody = (sbody s) {velocity = ((fst (velocity (sbody s))) * drag, (snd (velocity (sbody s))) * drag)}}
  where
   drag = 0.9
 
 boostship :: Ship -> Ship
-boostship s | up = s {velocity = ((-sin dir) * 2 + (fst vel) , (-cos dir) * 2 + (snd vel) )}
+boostship s | up = s { sbody =  b{velocity = ((-sin dir) * 5 + (fst vel) , (-cos dir) * 5 + (snd vel) )}}
             | otherwise = s
             where
   up = upkey s
-  dir = degreesToRadians (direction s)
-  vel = velocity s 
+  dir = degreesToRadians (direction b)
+  vel = velocity b
+  b = sbody s
 
 turnship :: Ship -> Ship 
-turnship s | leftkey s = s {direction = (direction s) - 5}
-           | rightkey s = s {direction = (direction s) + 5}
+turnship s | leftkey s = s {sbody = (sbody s){direction = (direction (sbody s)) - 10}}
+           | rightkey s = s {sbody = (sbody s){direction = (direction (sbody s)) + 10}}
            | otherwise = s 
 
 shipstep :: Ship -> Ship
-shipstep = boundingboxship . moveship . dragship . boostship . turnship
+shipstep s =
+  let s' = shipshoot (dragship (boostship (turnship s)))
+  in s' {sbody = boundingboxBody (moveBody (sbody s')),bullets = map bulletstep (bullets s')}
 
-boundingboxship :: Ship -> Ship
-boundingboxship s | all (>= 960) (map fst (shiptopoints s)) = s {location = ((fst (location s) ) - 1920, snd (location s))}
-boundingboxship s | all (<= -960) (map fst (shiptopoints s)) = s {location = ((fst (location s)) + 1920, snd (location s))}
-boundingboxship s | all (>= 540) (map snd (shiptopoints s)) = s {location = ((fst (location s)) , (snd (location s)) - 1080)}
-boundingboxship s | all (<= -540) (map snd (shiptopoints s)) = s {location = ((fst (location s)) , (snd (location s))+ 1080)}
-                  | otherwise = s
 
 shiptopoints :: Ship -> [(Float,Float)]
 shiptopoints s =
-  map (translation (location s) (degreesToRadians (direction s))) basicpoints
+  map (translation (location b) (degreesToRadians (direction b))) basicpoints
   where
     basicpoints =
       [ (-shipwidth / 2, shiplength / 2)
       , ( shipwidth / 2, shiplength / 2)
       , ( 0, -shiplength / 2)
       ]
-
-spawnship :: Ship
-spawnship = Ship (0.0 , 0.0) 0 (0,0) False False False-- degrees, 0 = pointing upwards 0 = velocity
+    b = sbody s
 
 
+shipshoot :: Ship -> Ship
+shipshoot s= if (spacebar s)
+  then s{bullets = (Bullet ( bulletbody {velocity = (velx + bulx,vely + buly),location = tipofship}) timealive ) : (bullets s)}
+    else s
+    where
+      velx = fst (velocity (sbody s))
+      vely = snd (velocity (sbody s))
+      bulx = 10 * (-sin(dir))
+      buly = 10 * (-cos(dir))
+      dir = degreesToRadians (direction (sbody s))
+      locx = fst (location (sbody s))
+      locy = snd (location (sbody s))
+      tipofship = (shiptopoints s) !! 2 
+      timealive = 200

@@ -18,4 +18,7 @@ executable gloss-counter
                      , View
                      , Ship
                      , Math
+                     , Body
+                     , Asteroid
+                     , Bullet
   default-language:    Haskell2010

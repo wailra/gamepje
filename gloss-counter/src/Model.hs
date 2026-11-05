@@ -3,15 +3,19 @@ module Model where
 -- | This module contains the data types
 --   which represent the state of the game 
 import Ship
-nO_SECS_BETWEEN_CYCLES :: Float
-nO_SECS_BETWEEN_CYCLES = 1
+import Asteroid
+
 
 data GameState = GameState {
                  elapsedTime :: Float
-                 , ship :: Ship
+                 ,ship :: Ship
+                 ,asteroids :: [Asteroid]
+                 ,spawnTimer :: Float
+                 ,lives :: Int
                  }
 
 
 
 initialState :: GameState
-initialState = GameState 0 spawnship
+initialState = GameState 0 (spawnShip) [] 0 3
+
