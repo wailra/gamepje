@@ -21,7 +21,7 @@ step dt gstate = do
         then do
             asteroid <- spawnasteroid
 
-            return (collisioncheckgstate (gstate
+            return (collisioncheckship (gstate
                 { elapsedTime = elapsedTime gstate + dt
                 , ship = shipstep (ship gstate)
                 , asteroids = asteroid : map asteroidstep (asteroids gstate)
@@ -29,7 +29,7 @@ step dt gstate = do
                 }))
 
         else
-            return (collisioncheckgstate (gstate
+            return (collisioncheckship (gstate
                 { elapsedTime = elapsedTime gstate + dt
                 , ship = shipstep (ship gstate)
                 , asteroids = map asteroidstep (asteroids gstate)
@@ -56,8 +56,8 @@ input (EventKey (SpecialKey KeySpace) Up _ _) gstate =
      return gstate {ship = (ship gstate) {spacebar = False}}
 input _ gstate = return gstate
 
-collisioncheckgstate :: GameState -> GameState
-collisioncheckgstate gstate = if check
+collisioncheckship :: GameState -> GameState
+collisioncheckship gstate = if check
     then gstate 
     {
         lives = (lives gstate) - 1
@@ -66,4 +66,14 @@ collisioncheckgstate gstate = if check
     else gstate
         where
             check = any (bodycollisioncheck (sbody (ship gstate))) (map abody (asteroids gstate))
+
+collisioncheckbullet :: GameState -> GameState
+collisioncheckbullet g =
+ where
+    s = ship gstate
+    b = bullets s
+    a = asteroids gstate
+    asteroidcheck [] = []
+    asteroidcheck (x:xs) | !(any (bodycollisioncheck (bbody b))) = x : asteroidcheck xs
+    asteroidcheck (x:xs) | otherwwise = asteroidcheck xs
 
