@@ -36,3 +36,7 @@ splitasteroid a
     piece (x, y) = Asteroid (b { velocity = (x * 1.2, y * 1.2)
                                , collisionsize = fromIntegral newsize * 40 })
                             newsize
+
+-- Points for shooting this asteroid and smaller is worth more. Size 4 = 10, size 3 = 20, size 2 = 30, size 1 = 40
+asteroidpoints :: Asteroid -> Int
+asteroidpoints a = (5 - size a) * 10
