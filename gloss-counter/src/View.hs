@@ -12,7 +12,9 @@ import Hunter
 import Ufo
 
 view :: GameState -> IO Picture
-view = return . viewPure
+view gstate
+    | gameover gstate = return (drawGameOver (score gstate))   -- game over screen
+    | otherwise       = return (viewPure gstate)               -- normal game
 
 viewPure :: GameState -> Picture
 viewPure gstate = pictures
@@ -62,3 +64,11 @@ drawUfo u = translate x y (color green (scale 1 0.5 (circleSolid (collisionsize 
 -- The score shown in white on top left corner
 drawScore :: Int -> Picture
 drawScore sc = translate (-940) 480 (scale 0.3 0.3 (color white (text ("Score: " ++ show sc))))
+
+-- The game over screen is a big red text with your score and displaying how to play again
+drawGameOver :: Int -> Picture
+drawGameOver sc = pictures
+    [ translate (-380) 50 (color red (text "GAME OVER"))
+    , translate (-160) (-80) (scale 0.4 0.4 (color white (text ("Score: " ++ show sc))))
+    , translate (-250) (-180) (scale 0.3 0.3 (color white (text "Press Enter to play again")))
+    ]

@@ -19,10 +19,11 @@ data GameState = GameState {
                  ,ufos :: [Ufo]
                  ,ufobullets :: [Bullet]
                  ,score :: Int
+                 ,gameover :: Bool
                  }
 
 
 
 initialState :: GameState
-initialState = GameState 0 (spawnShip) [] 0 3 [] [] [] 0
+initialState = GameState 0 (spawnShip) [] 0 3 [] [] [] 0 False
 

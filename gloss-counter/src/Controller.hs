@@ -15,9 +15,14 @@ import Hunter
 import Ufo
 
 
--- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step dt gstate = do
+step dt gstate
+    | gameover gstate = return gstate          -- game over and everything stops moving
+    | otherwise       = playstep dt gstate     -- still playing so continiuing game step
+
+-- One normal step of the game while still playing
+playstep :: Float -> GameState -> IO GameState
+playstep dt gstate = do
 
     let newTimer = spawnTimer gstate + dt
 
@@ -64,6 +69,10 @@ step dt gstate = do
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState
+-- When Game over 'Enter' starts a new game
+-- when it isn't game over H(ask)ell just goes on to the next line
+input (EventKey (SpecialKey KeyEnter) Down _ _) gstate
+    | gameover gstate = return initialState
 input (EventKey (SpecialKey KeyUp) Down _ _) gstate =
     return gstate {ship = (ship gstate) {upkey = True}}
 input (EventKey (SpecialKey KeyUp) Up _ _) gstate =
@@ -89,7 +98,8 @@ collisioncheckship gstate = if check
         lives = (lives gstate) - 1
         ,ship = spawnShip
         ,hunters = []
-        ,ufobullets = [] 
+        ,ufobullets = []
+        ,gameover = lives gstate <= 1   -- this was your last life 
     }
     else gstate
         where
