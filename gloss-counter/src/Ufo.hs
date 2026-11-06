@@ -3,6 +3,7 @@ module Ufo where
 import Body
 import Bullet
 import Math
+import System.Random
 
 -- UFO flies around the screen and shoots towards the ship
 data Ufo = Ufo
@@ -19,10 +20,13 @@ ufobulletspeed :: Float
 ufobulletspeed = 25
 
 -- Make a new UFO on one random side of the screen
-spawnufo :: IO Ufo
-spawnufo = do
-    b <- spawnBodyside
-    return (Ufo (b { collisionsize = 35 }) 0)
+spawnufo :: StdGen -> (Ufo, StdGen)
+spawnufo gen =
+    let
+        (b, gen') = spawnBodyside gen
+        b' = b { collisionsize = 35 }
+    in
+        (Ufo b' 0, gen')
 
 -- Did UFO wait long enough to shoot again?
 readytoshoot :: Ufo -> Bool

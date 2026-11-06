@@ -18,23 +18,23 @@ boundingboxBody b | ((snd (location b)) >= 540) = b {location = ((fst (location 
 boundingboxBody b | ((snd (location b)) <= -540) = b {location = ((fst (location b)) , (snd (location b))+ 1080)}
                   | otherwise = b
 
-spawnBodyside :: IO Body
-spawnBodyside = do
-    t <- randomRIO (1, 4) :: IO Int
+spawnBodyside :: StdGen -> (Body, StdGen)
+spawnBodyside gen =
+    let
+        (t, gen1) = randomR (1, 4) gen :: (Int, StdGen)
+        (x, gen2)  = randomR (-960, 960) gen1
+        (y, gen3)  = randomR (-540, 540) gen2
+        (vx, gen4) = randomR (-30.0, 30.0) gen3
+        (vy, gen5) = randomR (-30.0, 30.0) gen4
 
-    x <- randomRIO (-960, 960) :: IO Float
-    y <- randomRIO (-540, 540) :: IO Float
-
-    vx <- randomRIO (-30.0, 30.0) :: IO Float
-    vy <- randomRIO (-30.0, 30.0) :: IO Float
-
-    let pos
-          | t == 1 = (x, 540)
-          | t == 2 = (960, y)
-          | t == 3 = (x, -540)
+        pos
+          | t == 1    = (x, 540)
+          | t == 2    = (960, y)
+          | t == 3    = (x, -540)
           | otherwise = (-960, y)
 
-    return (Body pos (vx, vy) 0 0)
+    in
+        (Body pos (vx, vy) 0 0, gen5)
 
 bodycollisioncheck :: Body -> Body -> Bool
 bodycollisioncheck b1 b2 = (collisionsize b1 + collisionsize b2) > d

@@ -8,6 +8,7 @@ import Hunter
 import Ufo
 import Bullet
 import Explosion
+import System.Random
 
 
 data GameState = GameState {
@@ -22,10 +23,11 @@ data GameState = GameState {
                  ,score :: Int
                  ,gameover :: Bool
                  ,explosions :: [Explosion]
+                 ,generator :: StdGen
                  }
 
 
 
 initialState :: GameState
-initialState = GameState 0 (spawnShip) [] 0 3 [] [] [] 0 False []
+initialState = GameState 0 (spawnShip) [] 0 3 [] [] [] 0 False [] (mkStdGen 42)
 

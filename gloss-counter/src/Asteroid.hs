@@ -3,6 +3,7 @@ module Asteroid where
 import Body
 import System.Random
 
+
 data Asteroid = Asteroid 
     {
         abody :: Body
@@ -13,14 +14,16 @@ data Asteroid = Asteroid
 asteroidstep :: Asteroid -> Asteroid
 asteroidstep a = a {abody = boundingboxBody (moveBody (abody a))}
 
-spawnasteroid :: IO Asteroid
-spawnasteroid = do
-    siz <- randomRIO (1, 4)
-    b <- spawnBodyside
+spawnasteroid :: StdGen -> (Asteroid, StdGen)
+spawnasteroid gen =
+    let
+        (siz, gen1) = randomR (1, 4) gen :: (Int, StdGen)
+        (b, gen2) = spawnBodyside gen1
 
-    let b' = b {collisionsize = fromIntegral siz * 40}
+        b' = b { collisionsize = fromIntegral siz * 40 }
 
-    return (Asteroid b' siz)
+    in
+        (Asteroid b' siz, gen2)
 
 -- What is being left after an asteroid is shot
 -- Size 1 is gone and big ones break into two pieces of a size smaller

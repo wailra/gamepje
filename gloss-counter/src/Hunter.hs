@@ -2,6 +2,7 @@ module Hunter where
 
 import Body
 import Math
+import System.Random
 
 data Hunter = Hunter
     { hbody :: Body
@@ -12,10 +13,13 @@ hunterspeed :: Float
 hunterspeed = 15
 
 -- Make new hunter on a random side of the screen.
-spawnhunter :: IO Hunter
-spawnhunter = do
-    b <- spawnBodyside
-    return (Hunter (b { collisionsize = 30 }))
+spawnhunter :: StdGen -> (Hunter, StdGen)
+spawnhunter gen =
+    let
+        (b, gen') = spawnBodyside gen
+        b' = b { collisionsize = 30 }
+    in
+        (Hunter b', gen')
 
 -- Aim the hunter at the ship and move it one frame (My brain is burning at this point) same sx sy as in the UFO
 hunterstep :: (Float, Float) -> Hunter -> Hunter

@@ -29,9 +29,9 @@ playstep dt gstate = do
 
     if newTimer >= 10
         then do
-            asteroid <- spawnasteroid
-            hunter   <- spawnhunter
-            ufo <- spawnufo
+            let (asteroid, gen1) = spawnasteroid (generator gstate)
+            let (hunter, gen2)   = spawnhunter gen1
+            let (ufo, gen3)      = spawnufo gen2
 
             return (collisioncheckship (collisioncheckbullet (gstate
                 { elapsedTime = elapsedTime gstate + dt
