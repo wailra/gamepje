@@ -10,6 +10,7 @@ import Body
 import Bullet
 import Hunter
 import Ufo
+import Explosion
 
 view :: GameState -> IO Picture
 view gstate
@@ -24,6 +25,7 @@ viewPure gstate = pictures
     , pictures (map drawHunter (hunters gstate))
     , pictures (map drawUfo (ufos gstate))
     , pictures (map drawBullet (ufobullets gstate))
+    , pictures (map drawExplosion (explosions gstate))
     , drawScore (score gstate)
     ]
     where
@@ -72,3 +74,12 @@ drawGameOver sc = pictures
     , translate (-160) (-80) (scale 0.4 0.4 (color white (text ("Score: " ++ show sc))))
     , translate (-250) (-180) (scale 0.3 0.3 (color white (text "Press Enter to play again")))
     ]
+
+-- An explosion is a yellow ring that gets big and then fades out
+drawExplosion :: Explosion -> Picture
+drawExplosion e = translate x y (color c (thickCircle radius 6))
+    where
+        (x, y)   = epos e
+        progress = etime e / explosionlength      -- 0 at the start, 1 at the end
+        radius   = 10 + 60 * progress             
+        c        = withAlpha (1 - progress) yellow -- from solid to gone

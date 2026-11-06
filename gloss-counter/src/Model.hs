@@ -7,6 +7,7 @@ import Asteroid
 import Hunter
 import Ufo
 import Bullet
+import Explosion
 
 
 data GameState = GameState {
@@ -20,10 +21,11 @@ data GameState = GameState {
                  ,ufobullets :: [Bullet]
                  ,score :: Int
                  ,gameover :: Bool
+                 ,explosions :: [Explosion]
                  }
 
 
 
 initialState :: GameState
-initialState = GameState 0 (spawnShip) [] 0 3 [] [] [] 0 False
+initialState = GameState 0 (spawnShip) [] 0 3 [] [] [] 0 False []
 

@@ -23,4 +23,5 @@ executable gloss-counter
                      , Bullet
                      , Hunter
                      , Ufo
+                     , Explosion
   default-language:    Haskell2010

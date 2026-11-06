@@ -13,6 +13,7 @@ import Body
 import Bullet
 import Hunter
 import Ufo
+import Explosion
 
 
 step :: Float -> GameState -> IO GameState
@@ -39,6 +40,7 @@ playstep dt gstate = do
                 , hunters = addifnone hunter movedhunters
                 , ufos = addifnone ufo movedufos
                 , ufobullets = movedufobullets
+                , explosions = movedexplosions
                 , spawnTimer = 0
                 })))
 
@@ -50,6 +52,7 @@ playstep dt gstate = do
                 , hunters = movedhunters
                 , ufos = movedufos
                 , ufobullets = movedufobullets
+                , explosions = movedexplosions
                 , spawnTimer = newTimer
                 })))
   where
@@ -63,6 +66,8 @@ playstep dt gstate = do
     newshots = map (ufoshoot shippos) (filter readytoshoot (ufos gstate))
     -- old UFO bullets move and be gone when fate has been completed
     movedufobullets = newshots ++ filter lifetimecheck (map bulletstep (ufobullets gstate))
+    -- every explosion gets older and finished ones get removed
+    movedexplosions = filter explosionalive (map (explosionstep dt) (explosions gstate))
     -- only add the new enemy when there is none of that sort yet
     addifnone x [] = [x]
     addifnone _ xs = xs
@@ -99,12 +104,13 @@ collisioncheckship gstate = if check
         ,ship = spawnShip
         ,hunters = []
         ,ufobullets = []
+        ,explosions = newexplosion (location (sbody (ship gstate))) : explosions gstate  -- ship go kaboom💣 No pun intended I swaer x Furkan
         ,gameover = lives gstate <= 1   -- this was your last life 
     }
     else gstate
         where
             -- everything which kills the ship when it touches it
-            dangers = map abody (asteroids gstate)  ++ map ubody (ufos gstate) ++ map bbody (ufobullets gstate)
+            dangers = map abody (asteroids gstate) ++ map hbody (hunters gstate) ++ map ubody (ufos gstate) ++ map bbody (ufobullets gstate)
             check   = touchesany dangers (sbody (ship gstate))
 
 -- Bullets which touch an asteroid disappear and asteroids which get touched by a bullet disappear too
@@ -115,6 +121,7 @@ collisioncheckbullet gstate = gstate
         , hunters = filter (not . hunterhit) hs
         , ufos = filter (not . ufohit) us
         , score = score gstate + points
+        , explosions = explosions gstate ++ map newexplosion hitplaces
     }
   where
     s  = ship gstate
@@ -134,3 +141,7 @@ collisioncheckbullet gstate = gstate
     points = sum (map asteroidpoints hitasteroids)
            + 50  * length (filter hunterhit hs)
            + 100 * length (filter ufohit us)
+    -- the places where something got shot in frame, for the explosions
+    hitplaces = map (location . abody) hitasteroids
+             ++ map (location . hbody) (filter hunterhit hs)
+             ++ map (location . ubody) (filter ufohit us)
