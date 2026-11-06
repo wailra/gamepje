@@ -10,6 +10,7 @@ import System.Random
 import Ship
 import Asteroid
 import Body
+import Bullet
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
@@ -21,20 +22,20 @@ step dt gstate = do
         then do
             asteroid <- spawnasteroid
 
-            return (collisioncheckship (gstate
+            return (collisioncheckship (collisioncheckbullet (gstate
                 { elapsedTime = elapsedTime gstate + dt
                 , ship = shipstep (ship gstate)
                 , asteroids = asteroid : map asteroidstep (asteroids gstate)
                 , spawnTimer = 0
-                }))
+                })))
 
         else
-            return (collisioncheckship (gstate
+            return (collisioncheckship (collisioncheckbullet (gstate
                 { elapsedTime = elapsedTime gstate + dt
                 , ship = shipstep (ship gstate)
                 , asteroids = map asteroidstep (asteroids gstate)
                 , spawnTimer = newTimer
-                }))
+                })))
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState
@@ -67,13 +68,17 @@ collisioncheckship gstate = if check
         where
             check = any (bodycollisioncheck (sbody (ship gstate))) (map abody (asteroids gstate))
 
+-- Bullets which touch an asteroid disappear and asteroids which get touched by a bullet disappear too
 collisioncheckbullet :: GameState -> GameState
-collisioncheckbullet g =
- where
-    s = ship gstate
-    b = bullets s
-    a = asteroids gstate
-    asteroidcheck [] = []
-    asteroidcheck (x:xs) | !(any (bodycollisioncheck (bbody b))) = x : asteroidcheck xs
-    asteroidcheck (x:xs) | otherwwise = asteroidcheck xs
-
+collisioncheckbullet gstate = gstate
+    { ship      = s { bullets = filter (not . bullethit) bs }
+    , asteroids = filter (not . asteroidhit) as
+    }
+  where
+    s  = ship gstate
+    bs = bullets s
+    as = asteroids gstate
+    -- bullet gets used up when it touches any asteroid
+    bullethit b   = touchesany (map abody as) (bbody b)
+    -- asteroid destroyed when any bullet touches it
+    asteroidhit a = touchesany (map bbody bs) (abody a)

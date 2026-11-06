@@ -40,3 +40,7 @@ bodycollisioncheck :: Body -> Body -> Bool
 bodycollisioncheck b1 b2 = (collisionsize b1 + collisionsize b2) > d
     where
         d = distancepoints (location b1) (location b2)
+
+-- True if body b touches one of the bodies in the list
+touchesany :: [Body] -> Body -> Bool
+touchesany bodies b = any (bodycollisioncheck b) bodies
