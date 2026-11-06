@@ -104,6 +104,7 @@ collisioncheckbullet gstate = gstate
         , asteroids = filter (not . asteroidhit) as ++ concatMap splitasteroid hitasteroids
         , hunters = filter (not . hunterhit) hs
         , ufos = filter (not . ufohit) us
+        , score = score gstate + points
     }
   where
     s  = ship gstate
@@ -119,3 +120,7 @@ collisioncheckbullet gstate = gstate
     ufohit u      = touchesany (map bbody bs) (ubody u)
     -- all asteroids which got hit in thisssssss frame
     hitasteroids  = filter asteroidhit as
+    -- points earned on this frame is asteroids by size, 50 per hunter and 100 per UFO
+    points = sum (map asteroidpoints hitasteroids)
+           + 50  * length (filter hunterhit hs)
+           + 100 * length (filter ufohit us)

@@ -22,6 +22,7 @@ viewPure gstate = pictures
     , pictures (map drawHunter (hunters gstate))
     , pictures (map drawUfo (ufos gstate))
     , pictures (map drawBullet (ufobullets gstate))
+    , drawScore (score gstate)
     ]
     where
         s = ship gstate
@@ -57,3 +58,7 @@ drawUfo u = translate x y (color green (scale 1 0.5 (circleSolid (collisionsize 
     where
         b      = ubody u
         (x, y) = location b
+
+-- The score shown in white on top left corner
+drawScore :: Int -> Picture
+drawScore sc = translate (-940) 480 (scale 0.3 0.3 (color white (text ("Score: " ++ show sc))))
