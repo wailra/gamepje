@@ -14,7 +14,8 @@ import Explosion
 
 view :: GameState -> IO Picture
 view gstate
-    | gameover gstate = return (drawGameOver (score gstate))   -- game over screen
+    | gameover gstate = return (drawGameOver (score gstate) (highscore gstate))   -- game over screen
+    | paused gstate   = return (pictures [viewPure gstate, drawPaused])   -- frozen game with PAUSED text on top of it hehe
     | otherwise       = return (viewPure gstate)               -- normal game
 
 viewPure :: GameState -> Picture
@@ -68,11 +69,12 @@ drawScore :: Int -> Picture
 drawScore sc = translate (-940) 480 (scale 0.3 0.3 (color white (text ("Score: " ++ show sc))))
 
 -- The game over screen is a big red text with your score and displaying how to play again
-drawGameOver :: Int -> Picture
-drawGameOver sc = pictures
+drawGameOver :: Int -> Int -> Picture
+drawGameOver sc best = pictures
     [ translate (-380) 50 (color red (text "GAME OVER"))
     , translate (-160) (-80) (scale 0.4 0.4 (color white (text ("Score: " ++ show sc))))
-    , translate (-250) (-180) (scale 0.3 0.3 (color white (text "Press Enter to play again")))
+    , translate (-200) (-160) (scale 0.4 0.4 (color white (text ("Highscore: " ++ show (max sc best)))))
+    , translate (-250) (-260) (scale 0.3 0.3 (color white (text "Press Enter to play again")))
     ]
 
 -- An explosion is a yellow ring that gets big and then fades out
@@ -83,3 +85,10 @@ drawExplosion e = translate x y (color c (thickCircle radius 6))
         progress = etime e / explosionlength      -- 0 at the start, 1 at the end
         radius   = 10 + 60 * progress             
         c        = withAlpha (1 - progress) yellow -- from solid to gone
+
+-- Pause screen
+drawPaused :: Picture
+drawPaused = pictures
+    [ translate (-260) 0 (color white (text "PAUSED"))
+    , translate (-230) (-100) (scale 0.3 0.3 (color white (text "Press P to continue")))
+    ]

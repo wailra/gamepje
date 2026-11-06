@@ -9,6 +9,7 @@ import Ufo
 import Bullet
 import Explosion
 import System.Random
+import Data.Bool (Bool(False))
 
 
 data GameState = GameState {
@@ -24,10 +25,12 @@ data GameState = GameState {
                  ,gameover :: Bool
                  ,explosions :: [Explosion]
                  ,generator :: StdGen
+                 ,paused :: Bool
+                 ,highscore :: Int
                  }
 
 
 
-initialState :: GameState
-initialState = GameState 0 (spawnShip) [] 0 3 [] [] [] 0 False [] (mkStdGen 42)
+initialState :: Int -> GameState
+initialState best = GameState 0 (spawnShip) [] 0 3 [] [] [] 0 False [] (mkStdGen 42) False best
 

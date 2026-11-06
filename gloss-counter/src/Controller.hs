@@ -19,7 +19,17 @@ import Explosion
 step :: Float -> GameState -> IO GameState
 step dt gstate
     | gameover gstate = return gstate          -- game over and everything stops moving
-    | otherwise       = playstep dt gstate     -- still playing so continiuing game step
+    | paused gstate   = return gstate          -- paused means nothing moves until P is pressed again
+    | otherwise       = do
+        newstate <- playstep dt gstate
+        if gameover newstate
+            then saveScore (score newstate)    -- the game ended frame, save the score at that moment
+            else return ()                     
+        return newstate
+
+-- Add scor as a new line at the end of high score file
+saveScore :: Int -> IO ()
+saveScore sc = appendFile "highscores.txt" (show sc ++ "\n")
 
 -- One normal step of the game while still playing
 playstep :: Float -> GameState -> IO GameState
@@ -42,6 +52,7 @@ playstep dt gstate = do
                 , ufobullets = movedufobullets
                 , explosions = movedexplosions
                 , spawnTimer = 0
+                , generator = gen3
                 })))
 
         else
@@ -77,7 +88,10 @@ input :: Event -> GameState -> IO GameState
 -- When Game over 'Enter' starts a new game
 -- when it isn't game over H(ask)ell just goes on to the next line
 input (EventKey (SpecialKey KeyEnter) Down _ _) gstate
-    | gameover gstate = return initialState
+    | gameover gstate = return (initialState (max (highscore gstate) (score gstate)))
+-- P pauses the game and again continues it
+input (EventKey (Char 'p') Down _ _) gstate =
+    return gstate {paused = not (paused gstate)}
 input (EventKey (SpecialKey KeyUp) Down _ _) gstate =
     return gstate {ship = (ship gstate) {upkey = True}}
 input (EventKey (SpecialKey KeyUp) Up _ _) gstate =
