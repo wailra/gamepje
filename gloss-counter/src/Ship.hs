@@ -48,8 +48,10 @@ turnship s | leftkey s = s {sbody = (sbody s){direction = (direction (sbody s)) 
 shipstep :: Ship -> Ship
 shipstep s =
   let s' = shipshoot (dragship (boostship (turnship s)))
-  in s' {sbody = boundingboxBody (moveBody (sbody s')),bullets = map bulletstep (bullets s')}
+  in s' {sbody = boundingboxBody (moveBody (sbody s')),bullets = filter lifetimecheck (map bulletstep (bullets s'))}
 
+lifetimecheck :: Bullet -> Bool
+lifetimecheck b = ((lifetime b) > 0)
 
 shiptopoints :: Ship -> [(Float,Float)]
 shiptopoints s =
@@ -70,10 +72,11 @@ shipshoot s= if (spacebar s)
     where
       velx = fst (velocity (sbody s))
       vely = snd (velocity (sbody s))
-      bulx = 10 * (-sin(dir))
-      buly = 10 * (-cos(dir))
+      bulx = spd * (-sin(dir))
+      buly = spd * (-cos(dir))
       dir = degreesToRadians (direction (sbody s))
       locx = fst (location (sbody s))
       locy = snd (location (sbody s))
       tipofship = (shiptopoints s) !! 2 
-      timealive = 200
+      timealive = 300
+      spd = 20
