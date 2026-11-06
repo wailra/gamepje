@@ -72,7 +72,7 @@ collisioncheckship gstate = if check
 collisioncheckbullet :: GameState -> GameState
 collisioncheckbullet gstate = gstate
     { ship      = s { bullets = filter (not . bullethit) bs }
-    , asteroids = filter (not . asteroidhit) as
+        , asteroids = filter (not . asteroidhit) as ++ concatMap splitasteroid hitasteroids
     }
   where
     s  = ship gstate
@@ -82,3 +82,5 @@ collisioncheckbullet gstate = gstate
     bullethit b   = touchesany (map abody as) (bbody b)
     -- asteroid destroyed when any bullet touches it
     asteroidhit a = touchesany (map bbody bs) (abody a)
+    -- all asteroids which got hit in thisssssss frame
+    hitasteroids  = filter asteroidhit as

@@ -21,3 +21,18 @@ spawnasteroid = do
     let b' = b {collisionsize = fromIntegral siz * 40}
 
     return (Asteroid b' siz)
+
+-- What is being left after an asteroid is shot
+-- Size 1 is gone and big ones break into two pieces of a size smaller
+splitasteroid :: Asteroid -> [Asteroid]
+splitasteroid a
+    | size a <= 1 = []
+    | otherwise   = [piece (vy, -vx), piece (-vy, vx)]
+  where
+    b        = abody a
+    (vx, vy) = velocity b          -- old speed of the asteroid
+    newsize  = size a - 1
+    -- same place, new direction is a quarter turn, a little faster ands maller
+    piece (x, y) = Asteroid (b { velocity = (x * 1.2, y * 1.2)
+                               , collisionsize = fromIntegral newsize * 40 })
+                            newsize
