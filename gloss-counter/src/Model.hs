@@ -4,6 +4,9 @@ module Model where
 --   which represent the state of the game 
 import Ship
 import Asteroid
+import Hunter
+import Ufo
+import Bullet
 
 
 data GameState = GameState {
@@ -12,10 +15,13 @@ data GameState = GameState {
                  ,asteroids :: [Asteroid]
                  ,spawnTimer :: Float
                  ,lives :: Int
+                 ,hunters :: [Hunter]
+                 ,ufos :: [Ufo]
+                 ,ufobullets :: [Bullet]
                  }
 
 
 
 initialState :: GameState
-initialState = GameState 0 (spawnShip) [] 0 3
+initialState = GameState 0 (spawnShip) [] 0 3 [] [] []
 
